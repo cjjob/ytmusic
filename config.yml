@@ -1,0 +1,24 @@
+organise:
+  - "all"
+  - "best"
+  - "classical"
+  - "dance"
+  - "feel"
+  - "funny ol' life"
+  - "pas_understando"
+  - "random"
+  - "school"
+  - "smile"
+  - "trash"
+  - "trippin"
+  # This is temp hold.
+  # Songs that have been reviewed but don't make it into any other playlist.
+  # Hence, "un"classified.
+  - "un"
+
+ignore:
+  - "Episodes for Later"
+  - "misc"
+  - "sets"
+  - "TODO"
+  - "yt nailed it"
