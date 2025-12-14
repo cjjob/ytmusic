@@ -1,3 +1,6 @@
+from typing import Any
+
+
 import logging
 import yaml
 from ytmusicapi import YTMusic
@@ -52,6 +55,23 @@ if __name__ == "__main__":
         f.write("\n".join(all_titles_and_artists))
 
     # Write the other playlists to while we're at it.
+    playlist_titles_and_artists_and_ids: dict[str, dict] = dict()
+    for title, playlist in to_process.items():
+        if title == "all":
+            continue
+        inner_dict = dict()
+        for track in ytmusic.get_playlist(
+            playlist["playlistId"],
+            limit=int(1e5),
+        )["tracks"]:
+            inner_dict[track["videoId"]] = {
+                "title": track["title"],
+                "artists": [a["name"] for a in track["artists"]],
+            }
+        playlist_titles_and_artists_and_ids[title] = inner_dict
+
+    with open("out/playlists.yaml", "w") as f:
+        yaml.dump(playlist_titles_and_artists_and_ids, f)
 
     # Step 2:
     # Delete the "TODO" playlist.
