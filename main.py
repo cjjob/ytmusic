@@ -85,6 +85,8 @@ if __name__ == "__main__":
     all_video_ids = set()
     video_ids_in_playlists_other_than_all = set()
     for p_name, p in playlists.items():
+        if p_name == "TODO":
+            continue
         video_ids, songs = write_playlist_to_disk(
             client=ytmusic,
             title=p_name,
@@ -116,4 +118,17 @@ if __name__ == "__main__":
         title="TODO",
         description="gigachads test in prod",
         video_ids=list(all_video_ids - video_ids_in_playlists_other_than_all),
+    )
+
+    # Finally write out the new TODO playlist.
+    # But, note it's not the same unique ID as before.
+    # So, need to requery the playlists.
+    new_todo_playlist_id = (
+        p for p in ytmusic.get_library_playlists() if p["title"] == "TODO"
+    )["playlistId"]
+    _, _ = write_playlist_to_disk(
+        client=ytmusic,
+        title="TODO",
+        playlist_id=new_todo_playlist_id,
+        sort_write=True,
     )
