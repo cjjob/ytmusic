@@ -28,6 +28,7 @@ def write_playlist_to_disk(
     client: YTMusic,
     title: str,
     playlist_id: str,
+    sort_write: bool = False,
 ) -> tuple[set[str], list[SongInfo]]:
     logging.info(f"Writing playlist '{title}' (ID: {playlist_id}) to disk...")
     video_ids: set[str] = set()
@@ -47,11 +48,13 @@ def write_playlist_to_disk(
         )
 
     with open(f"out/{title}.txt", "w") as f:
-        f.write(
-            "\n".join(
-                [f"{s.title} :: {', '.join(s.artists)} :: {s.video_id}" for s in songs]
-            )
-        )
+        song_list = [
+            f"{s.title} :: {', '.join(s.artists)} :: {s.video_id}" for s in songs
+        ]
+        if sort_write:
+            song_list.sort()
+
+        f.write("\n".join(song_list))
 
     return video_ids, songs
 
@@ -86,6 +89,7 @@ if __name__ == "__main__":
             client=ytmusic,
             title=p_name,
             playlist_id=p["playlistId"],
+            sort_write=True if p_name == "TODO" else False,
         )
         match p_name:
             case "all":
