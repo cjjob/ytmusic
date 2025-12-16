@@ -123,9 +123,15 @@ if __name__ == "__main__":
     # Finally write out the new TODO playlist.
     # But, note it's not the same unique ID as before.
     # So, need to requery the playlists.
-    new_todo_playlist_id = (
-        p for p in ytmusic.get_library_playlists() if p["title"] == "TODO"
-    )["playlistId"]
+    # Find the playlist with title "TODO" and get its playlistId
+    new_todo_playlist_id = None
+    for p in ytmusic.get_library_playlists():
+        if p["title"] == "TODO":
+            new_todo_playlist_id = p["playlistId"]
+            break
+    if new_todo_playlist_id is None:
+        raise ValueError('Could not find playlist with title "TODO"!')
+
     _, _ = write_playlist_to_disk(
         client=ytmusic,
         title="TODO",
