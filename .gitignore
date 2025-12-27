@@ -1,5 +1,6 @@
 .env
 .venv
+.mypy_cache
 browser.json
 client_secret_*.json
 oauth.json

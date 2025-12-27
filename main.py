@@ -18,12 +18,6 @@ class SongInfo:
     video_id: str
 
 
-def load_config():
-    logging.debug("Loading config...")
-    with open("config.yml", "r") as f:
-        return yaml.safe_load(f)
-
-
 def write_playlist_to_disk(
     client: YTMusic,
     title: str,
@@ -61,14 +55,16 @@ def write_playlist_to_disk(
 
 if __name__ == "__main__":
 
-    cfg = load_config()
+    logging.debug("Loading config...")
+    with open("config.yml", "r") as f:
+        cfg: dict[str, Any] = yaml.safe_load(f)
 
     ytmusic = YTMusic(
         "browser.json",
     )
 
     # Step 1: Record playlist state in case we f*ck up.
-    all_playlists = ytmusic.get_library_playlists()
+    all_playlists: list[dict[str, Any]] = ytmusic.get_library_playlists()
 
     logging.info(f"Found {len(all_playlists)} playlists.")
 
@@ -132,7 +128,7 @@ if __name__ == "__main__":
     if new_todo_playlist_id is None:
         raise ValueError('Could not find playlist with title "TODO"!')
 
-    _, _ = write_playlist_to_disk(
+    write_playlist_to_disk(
         client=ytmusic,
         title="TODO",
         playlist_id=new_todo_playlist_id,
