@@ -28,21 +28,24 @@ def write_playlist_to_disk(
     video_ids: set[str] = set()
     songs: list[SongInfo] = []
 
-    for track in client.get_playlist(
+    playlist_data: dict[str, Any] = client.get_playlist(
         playlist_id,
         limit=int(1e5),
-    )["tracks"]:
-        video_ids.add(track["videoId"])
+    )
+    tracks: list[dict[str, Any]] = playlist_data["tracks"]
+    for track in tracks:
+        video_id: str = track["videoId"]
+        video_ids.add(video_id)
         songs.append(
             SongInfo(
                 title=track["title"],
                 artists=[a["name"] for a in track["artists"]],
-                video_id=track["videoId"],
+                video_id=video_id,
             )
         )
 
     with open(f"out/{title}.txt", "w") as f:
-        song_list = [
+        song_list: list[str] = [
             f"{s.title} :: {', '.join(s.artists)} :: {s.video_id}" for s in songs
         ]
         if sort_write:
@@ -59,7 +62,7 @@ if __name__ == "__main__":
     with open("config.yml", "r") as f:
         cfg: dict[str, Any] = yaml.safe_load(f)
 
-    ytmusic = YTMusic(
+    ytmusic: YTMusic = YTMusic(
         "browser.json",
     )
 
@@ -68,21 +71,26 @@ if __name__ == "__main__":
 
     logging.info(f"Found {len(all_playlists)} playlists.")
 
-    playlists = dict()
+    playlists: dict[str, dict[str, Any]] = dict()
     for p in all_playlists:
-        if p["title"] not in cfg["organise"] and p["title"] not in cfg["ignore"]:
+        title: str = p["title"]
+        if title not in cfg["organise"] and title not in cfg["ignore"]:
             logging.error(f"There's an errant playlist floating around...")
-            logging.error(f"Playlist: {p['title']}")
+            logging.error(f"Playlist: {title}")
             exit(1)
 
-        if p["title"] in cfg["organise"] or p["title"] == "TODO":
-            playlists[p["title"]] = p
+        if title in cfg["organise"] or title == "TODO":
+            playlists[title] = p
 
-    all_video_ids = set()
-    video_ids_in_playlists_other_than_all = set()
+    all_video_ids: set[str] = set()
+    video_ids_in_playlists_other_than_all: set[str] = set()
     for p_name, p in playlists.items():
+
         if p_name == "TODO":
             continue
+
+        video_ids: set[str] = set()
+        songs: list[SongInfo] = []
         video_ids, songs = write_playlist_to_disk(
             client=ytmusic,
             title=p_name,
@@ -92,8 +100,6 @@ if __name__ == "__main__":
         match p_name:
             case "all":
                 all_video_ids = video_ids
-            case "TODO":
-                continue
             case _:
                 video_ids_in_playlists_other_than_all |= video_ids
 
@@ -101,7 +107,8 @@ if __name__ == "__main__":
     # Based on whatever *manual* playlist additions I've applied.
     # Note, these are down 'outside the code'.
     try:
-        ytmusic.delete_playlist(playlists["TODO"]["playlistId"])
+        todo_playlist_id: str = playlists["TODO"]["playlistId"]
+        ytmusic.delete_playlist(todo_playlist_id)
     except KeyError:
         logging.warning(
             "You probably ran the script wrong previously... "
@@ -120,8 +127,9 @@ if __name__ == "__main__":
     # But, note it's not the same unique ID as before.
     # So, need to requery the playlists.
     # Find the playlist with title "TODO" and get its playlistId
-    new_todo_playlist_id = None
-    for p in ytmusic.get_library_playlists():
+    new_todo_playlist_id: str | None = None
+    updated_playlists: list[dict[str, Any]] = ytmusic.get_library_playlists()
+    for p in updated_playlists:
         if p["title"] == "TODO":
             new_todo_playlist_id = p["playlistId"]
             break
