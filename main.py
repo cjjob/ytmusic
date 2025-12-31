@@ -69,15 +69,24 @@ if __name__ == "__main__":
     # Step 1: Record playlist state in case we f*ck up.
     all_playlists: list[dict[str, Any]] = ytmusic.get_library_playlists()
 
+    # Immediately bail if the playlists aren't exactly what we expect.
+    # No more, no less.
+    expected_playlists: set[str] = set(cfg["organise"] + cfg["ignore"])
+    actual_playlists: set[str] = set([p["title"] for p in all_playlists])
+    expected_but_not_found: set[str] = expected_playlists - actual_playlists
+    found_but_not_expected: set[str] = actual_playlists - expected_playlists
+    if len(expected_but_not_found) > 0:
+        logging.error(f"Expected playlists not found: {expected_but_not_found}")
+        exit(1)
+    if len(found_but_not_expected) > 0:
+        logging.error(f"Found playlists but not expected: {found_but_not_expected}")
+        exit(1)
+
     logging.info(f"Found {len(all_playlists)} playlists.")
 
     playlists: dict[str, dict[str, Any]] = dict()
     for p in all_playlists:
         title: str = p["title"]
-        if title not in cfg["organise"] and title not in cfg["ignore"]:
-            logging.error(f"There's an errant playlist floating around...")
-            logging.error(f"Playlist: {title}")
-            exit(1)
 
         if title in cfg["organise"] or title == "TODO":
             playlists[title] = p
