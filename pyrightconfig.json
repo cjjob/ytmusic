@@ -1,0 +1,8 @@
+{
+  "pythonVersion": "3.14",
+  "reportAny": false,
+  "reportExplicitAny": false,
+  "reportMissingImports": "error",
+  "reportMissingTypeStubs": false,
+  "typeCheckingMode": "all"
+}
