@@ -1,9 +1,6 @@
-from typing import Any
-
-
-from dataclasses import dataclass
 import logging
-from collections.abc import Collection
+from dataclasses import dataclass
+from typing import Any
 
 import yaml
 from ytmusicapi import YTMusic
@@ -51,7 +48,7 @@ def write_playlist_to_disk(
         if sort_write:
             song_list.sort()
 
-        f.write("\n".join(song_list))
+        _ = f.write("\n".join(song_list))
 
     return video_ids, songs
 
@@ -117,16 +114,16 @@ if __name__ == "__main__":
     # Note, these are down 'outside the code'.
     try:
         todo_playlist_id: str = playlists["TODO"]["playlistId"]
-        ytmusic.delete_playlist(todo_playlist_id)
+        _ = ytmusic.delete_playlist(todo_playlist_id)
     except KeyError:
         logging.warning(
             "You probably ran the script wrong previously... "
-            "You should investigate if "
-            "(1) you didn't expect this warning or "
-            "(2) you can't work out why you're seeing it."
+            + "You should investigate if "
+            + "(1) you didn't expect this warning or "
+            + "(2) you can't work out why you're seeing it."
         )
 
-    ytmusic.create_playlist(
+    _ = ytmusic.create_playlist(
         title="TODO",
         description="gigachads test in prod",
         video_ids=list(all_video_ids - video_ids_in_playlists_other_than_all),
@@ -145,7 +142,7 @@ if __name__ == "__main__":
     if new_todo_playlist_id is None:
         raise ValueError('Could not find playlist with title "TODO"!')
 
-    write_playlist_to_disk(
+    _, _ = write_playlist_to_disk(
         client=ytmusic,
         title="TODO",
         playlist_id=new_todo_playlist_id,
