@@ -142,7 +142,7 @@ if __name__ == "__main__":
     if new_todo_playlist_id is None:
         raise ValueError('Could not find playlist with title "TODO"!')
 
-    _, _ = write_playlist_to_disk(
+    _video_ids, _songs = write_playlist_to_disk(
         client=ytmusic,
         title="TODO",
         playlist_id=new_todo_playlist_id,
