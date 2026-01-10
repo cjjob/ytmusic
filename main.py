@@ -109,6 +109,11 @@ if __name__ == "__main__":
             case _:
                 video_ids_in_playlists_other_than_all |= video_ids
 
+    not_in_all = video_ids_in_playlists_other_than_all - all_video_ids
+    with open("extra", "w") as f:
+        f.writelines(f"https://music.youtube.com/watch?v={id}\n" for id in not_in_all)
+
+
     # Step 2: Delete and recreate the TODO playlist.
     # Based on whatever *manual* playlist additions I've applied.
     # Note, these are down 'outside the code'.
