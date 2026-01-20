@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 EXTRA_FNAME = "extra"
+UN_AND_MORE_FNAME = "un_and_more"
 
 
 @dataclass
@@ -118,6 +119,8 @@ if __name__ == "__main__":
 
     all_video_ids: set[str] = set()
     video_ids_in_playlists_other_than_all: set[str] = set()
+    un_video_ids: set[str] = set()
+    video_ids_in_playlist_other_than_all_and_un: set[str] = set()
     for p_name, p in playlists.items():
 
         if p_name == "TODO":
@@ -134,12 +137,25 @@ if __name__ == "__main__":
         match p_name:
             case "all":
                 all_video_ids = video_ids
+            case "un":
+                un_video_ids = video_ids
+                video_ids_in_playlists_other_than_all |= video_ids
             case _:
                 video_ids_in_playlists_other_than_all |= video_ids
+                video_ids_in_playlist_other_than_all_and_un |= video_ids
 
     not_in_all = video_ids_in_playlists_other_than_all - all_video_ids
     with open(EXTRA_FNAME, "w") as f:
         f.writelines(f"https://music.youtube.com/watch?v={id}\n" for id in not_in_all)
+
+    in_un_and_at_least_one_more = un_video_ids.intersection(
+        video_ids_in_playlist_other_than_all_and_un
+    )
+    with open(UN_AND_MORE_FNAME, "w") as f:
+        f.writelines(
+            f"https://music.youtube.com/watch?v={id}\n"
+            for id in in_un_and_at_least_one_more
+        )
 
     # Step 2: Delete and recreate the TODO playlist.
     # Based on whatever *manual* playlist additions I've applied.
