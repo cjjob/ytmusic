@@ -1,6 +1,8 @@
 .env
 .venv
 .mypy_cache
+.pytest_cache
+__pycache__
 browser.json
 client_secret_*.json
 oauth.json
