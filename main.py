@@ -1,23 +1,16 @@
 import logging
-from dataclasses import dataclass
 from typing import Any
 
 import yaml
-from tenacity import retry, stop_after_attempt, wait_fixed
 from ytmusicapi import YTMusic
+
+from playlist_lib import SongInfo, get_playlist_id_by_title, init_client
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 EXTRA_FNAME = "extra"
 UN_AND_MORE_FNAME = "un_and_more"
-
-
-@dataclass
-class SongInfo:
-    title: str
-    artists: list[str]
-    video_id: str
 
 
 def remove_dups_and_write_playlist(
@@ -68,29 +61,13 @@ def remove_dups_and_write_playlist(
     return video_ids, songs
 
 
-@retry(stop=stop_after_attempt(2), wait=wait_fixed(4))
-def get_TODO_playlist_id(client: YTMusic) -> str:
-    new_todo_playlist_id: str | None = None
-    updated_playlists: list[dict[str, Any]] = client.get_library_playlists()
-    for p in updated_playlists:
-        if p["title"] == "TODO":
-            new_todo_playlist_id = p["playlistId"]
-            break
-    if new_todo_playlist_id is None:
-        raise ValueError('Could not find playlist with title "TODO"!')
-
-    return new_todo_playlist_id
-
-
 if __name__ == "__main__":
 
     logging.debug("Loading config...")
     with open("config.yml", "r") as f:
         cfg: dict[str, Any] = yaml.safe_load(f)
 
-    ytmusic: YTMusic = YTMusic(
-        "browser.json",
-    )
+    ytmusic: YTMusic = init_client()
 
     # Step 1: Record playlist state in case we f*ck up.
     all_playlists: list[dict[str, Any]] = ytmusic.get_library_playlists()
@@ -182,7 +159,7 @@ if __name__ == "__main__":
     # So, need to requery the playlists.
     # Find the playlist with title "TODO" and get its playlistId
     try:
-        new_todo_playlist_id: str = get_TODO_playlist_id(ytmusic)
+        new_todo_playlist_id: str = get_playlist_id_by_title(ytmusic, "TODO")
     except:
         logging.error("Could not retrieve TODO playlist ID after waiting and retries.")
         exit(1)
