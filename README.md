@@ -23,6 +23,13 @@ pytest
 python main.py
 ```
 
+Main writes each configured playlist to `out/<playlist_name>.txt`. It may also create the following files in the project root in the cases where there are songs matching the criteria:
+
+| File | Meaning |
+|------|--------|
+| **`extra`** | One YouTube Music watch URL per line. Each URL is a track that appears in at least one of your organise playlists (e.g. "un", "best") but is **not** in your "all" playlist. So your categorised playlists reference tracks that are missing from your main library — you may want to add them to "all" or remove them from the other playlists. |
+| **`un_and_more`** | One YouTube Music watch URL per line. Each URL is a track that is in **both** the "un" playlist and at least one other organise playlist. "un" is for reviewed tracks that don’t go into any other playlist; if a track is also in another playlist, it might be worth removing it from "un" or from the other playlist. |
+
 ## Running restore
 
 Restore a playlist from a snapshot (saved under `out/<playlist_name>.txt`):
